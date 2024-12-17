@@ -1,0 +1,55 @@
+{
+  "sentMessages": [
+    {
+      "id": "7a0c",
+      "content": "Hello",
+      "type": "sent",
+      "receiver": "user2",
+      "timestamp": "2024-12-17T00:38:07.782Z"
+    },
+    {
+      "id": "4364",
+      "content": "I am fine and you",
+      "type": "sent",
+      "receiver": "user2",
+      "timestamp": "2024-12-17T00:38:44.526Z"
+    },
+    {
+      "id": "b642",
+      "content": "hello",
+      "type": "sent",
+      "receiver": "user2",
+      "timestamp": "2024-12-17T02:41:26.465Z"
+    }
+  ],
+  "receivedMessages": [
+    {
+      "id": "b563",
+      "content": "Hy",
+      "type": "sent",
+      "receiver": "user2",
+      "timestamp": "2024-12-17T00:37:56.319Z"
+    },
+    {
+      "id": "d125",
+      "content": "how are you",
+      "type": "sent",
+      "receiver": "user2",
+      "timestamp": "2024-12-17T00:38:21.734Z"
+    },
+    {
+      "id": "e145",
+      "content": "i am alos jolly good",
+      "type": "sent",
+      "receiver": "user2",
+      "timestamp": "2024-12-17T00:39:02.670Z"
+    },
+    {
+      "id": "19a7",
+      "content": "hy",
+      "type": "sent",
+      "receiver": "user2",
+      "timestamp": "2024-12-17T02:41:44.466Z"
+    }
+  ]
+}

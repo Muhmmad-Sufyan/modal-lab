@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Receiver Chatbot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      /* Custom Scrollbar */
+      .scrollbar-custom::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .scrollbar-custom::-webkit-scrollbar-thumb {
+        background-color: gray;
+        border-radius: 8px;
+      }
+
+      .scrollbar-custom::-webkit-scrollbar-track {
+        background-color: #1a1a1a;
+      }
+    </style>
+  </head>
+
+  <body class="text-white md:h-screen w-full h-96 flex md:p-4 px-1 py-4 ">
+    <!-- Chatbot Container -->
+    <div
+      class="flex w-full h-full md:h-auto md:flex-row md:gap-4 gap-2 bg-black border-[4px] border-[#ff0019] md:p-5 p-2"
+    >
+      <!-- Left Brain Section -->
+      <div
+        class="w-1/2 py-4 flex items-center justify-center border-[4px] border-green-700"
+      >
+        <img
+          src="./Brain.png"
+          alt="Brain Design"
+          class="md:w-[35%] w-32 h-60 md:h-auto"
+        />
+      </div>
+
+      <!-- Chat Section -->
+      <div
+        class="w-1/2 flex flex-col border-[4px] border-green-700 bg-gray-800 relative"
+      >
+        <!-- Chat Messages -->
+        <div
+          id="chat-container"
+          class="flex-grow overflow-y-auto p-4 space-y-4 scrollbar-custom"
+        ></div>
+
+        <!-- Input Section -->
+        <div class="flex items-center md:p-4  p-1 w-80 md:w-full w-[80%] mx-auto relative z-1">
+          <input id="message-input" type="text" placeholder="Type a message"
+              class="flex-grow md:p-3 p-1 md:text-sm text-[6px]  md:w-[70%] w-[100%] text-white rounded-full border-2 border-[#1d1d1b] bg-transparent focus:outline-none" />
+          <button id="send-button" class="md:ml-4 ml-2 md:w-auto w-1/2">
+              <img src="./Upload Button.png" alt="Send" class="md:h-11 md:w-11 h-6 w-6 rounded-full" />
+          </button>
+      </div>
+      </div>
+    </div>
+
+    <script>
+      const API_RECEIVED_MESSAGES = "http://localhost:3000/receivedMessages";
+      const API_SENT_MESSAGES = "http://localhost:3000/sentMessages";
+
+      const chatContainer = document.getElementById("chat-container");
+      const messageInput = document.getElementById("message-input");
+      const sendButton = document.getElementById("send-button");
+
+      // Fetch and Render Messages
+      async function fetchMessages() {
+        try {
+          const [receivedResponse, sentResponse] = await Promise.all([ 
+            fetch(API_RECEIVED_MESSAGES), 
+            fetch(API_SENT_MESSAGES) 
+          ]);
+          const receivedMessages = await receivedResponse.json();
+          const sentMessages = await sentResponse.json();
+
+          renderMessages(receivedMessages, sentMessages);
+        } catch (error) {
+          console.error("Error fetching messages:", error);
+        }
+      }
+
+      // Render Messages in Chat Container
+      function renderMessages(received, sent) {
+        chatContainer.innerHTML = "";
+
+        // Render Received Messages First if Received First
+        let receivedIndex = 0,
+            sentIndex = 0;
+
+        while (receivedIndex < received.length || sentIndex < sent.length) {
+          // Display received message first if available
+          if (receivedIndex < received.length) {
+            const messageBubble = createMessageBubble(
+              received[receivedIndex].content,
+              "received"
+            );
+            chatContainer.appendChild(messageBubble);
+            receivedIndex++;
+          }
+
+          // Display sent message if available
+          if (sentIndex < sent.length) {
+            const messageBubble = createMessageBubble(
+              sent[sentIndex].content,
+              "sent"
+            );
+            chatContainer.appendChild(messageBubble);
+            sentIndex++;
+          }
+        }
+
+        // Scroll to the latest message
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+
+      // Create Message Bubble
+      function createMessageBubble(content, type) {
+        const bubble = document.createElement("div");
+        bubble.className = `flex items-center ${type === "received" ? "justify-end" : "justify-start"}`;
+
+        bubble.innerHTML = `
+          <div class="md:max-w-[65%] max-w-[80%] ${
+            type === "received" 
+              ? "bg-blue-500 text-white" 
+              : "bg-gray-300 text-black"
+          } p-3 rounded-lg shadow-md ${
+            type === "received" ? "rounded-tr-none" : "rounded-tl-none"
+          }">
+            ${content}
+          </div>
+        `;
+        return bubble;
+      }
+
+      // Send New Message
+      sendButton.addEventListener("click", async () => {
+        const newMessage = messageInput.value.trim();
+        if (!newMessage) return;
+
+        try {
+          const response = await fetch(API_RECEIVED_MESSAGES, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              content: newMessage,
+              type: "sent",
+              receiver: "user2",
+              timestamp: new Date().toISOString(),
+            }),
+          });
+
+          if (response.ok) {
+            messageInput.value = ""; // Clear input field
+            fetchMessages(); // Refresh messages
+          }
+        } catch (error) {
+          console.error("Error sending message:", error);
+        }
+      });
+
+      // Initial Fetch
+      fetchMessages();
+    </script>
+  </body>
+</html>
